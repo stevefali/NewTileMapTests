@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <script>
+      const canvas = document.createElement("canvas");
+      canvas.id = "canvas";
+      document.querySelector("#app").appendChild(canvas);
+
+      const ctx = canvas.getContext("2d");
+
+      const pixelSize = 8;
+      let pixelArray = [];
+
+      // Configuration
+      const circleRadius = 100;
+      const animationSpeed = 1000 / 60; // 60 FPS
+      const colors = {
+        on: "#161616",
+        off: "#ff7eb6",
+      };
+
+      // Helper Functions
+      const resizeCanvas = () => {
+        [canvas.width, canvas.height] = [window.innerWidth, window.innerHeight];
+        pixelArray = createPixelArray();
+      };
+
+      const createPixelArray = () => {
+        const width = canvas.width / pixelSize;
+        const height = canvas.height / pixelSize;
+        return Array.from({ length: width }, () =>
+          Array.from({ length: height }, () => 0)
+        );
+      };
+
+      const randomPixel = () => Math.round(Math.random());
+
+      const randomizePixelArray = () => {
+        for (let x = 0; x < pixelArray.length; x++) {
+          for (let y = 0; y < pixelArray[x].length; y++) {
+            pixelArray[x][y] = randomPixel();
+          }
+        }
+      };
+
+      const drawPixel = (x, y, color) => {
+        ctx.fillStyle = color;
+        ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
+      };
+
+      const drawImage = () => {
+        for (let x = 0; x < pixelArray.length; x++) {
+          for (let y = 0; y < pixelArray[x].length; y++) {
+            drawPixel(x, y, pixelArray[x][y] ? colors.on : colors.off);
+          }
+        }
+      };
+
+      const addCircle = (x, y, radius) => {
+        const pixelX = Math.round(x / pixelSize);
+        const pixelY = Math.round(y / pixelSize);
+        const pixelRadius = Math.round(radius / pixelSize);
+
+        for (let dx = -pixelRadius; dx <= pixelRadius; dx++) {
+          for (let dy = -pixelRadius; dy <= pixelRadius; dy++) {
+            const i = pixelX + dx;
+            const j = pixelY + dy;
+
+            if (
+              i >= 0 &&
+              i < pixelArray.length &&
+              j >= 0 &&
+              j < pixelArray[i].length &&
+              dx * dx + dy * dy <= pixelRadius * pixelRadius
+            ) {
+              pixelArray[i][j] = randomPixel();
+            }
+          }
+        }
+      };
+
+      // Circle Movement
+      let x = Math.round(window.innerWidth / 2);
+      let y = Math.round(window.innerHeight / 2);
+      let dx = pixelSize;
+      let dy = pixelSize;
+
+      // Initialization
+      resizeCanvas();
+      randomizePixelArray();
+      drawImage();
+
+      // Animation Loop
+      setInterval(() => {
+        addCircle(x, y, circleRadius);
+
+        x += dx;
+        y += dy;
+
+        // Bounce off walls
+        if (
+          x + circleRadius <= 0 ||
+          x + circleRadius >= window.innerWidth - 1
+        ) {
+          dx = -dx;
+        }
+        if (
+          y + circleRadius <= 0 ||
+          y + circleRadius >= window.innerHeight - 1
+        ) {
+          dy = -dy;
+        }
+
+        drawImage();
+      }, animationSpeed);
+
+      // Handle window resize
+      window.addEventListener("resize", resizeCanvas);
+    </script>
+  </body>
+</html>
