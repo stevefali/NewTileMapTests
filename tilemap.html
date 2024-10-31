@@ -40,7 +40,8 @@
         );
       };
 
-      const randomPixel = () => Math.round(Math.random());
+      //   const randomPixel = () => Math.floor(Math.random() * (5 - 1) + 1);
+      const randomPixel = () => Math.floor(Math.random() * 5);
 
       const randomizePixelArray = () => {
         for (let x = 0; x < pixelArray.length; x++) {
@@ -58,7 +59,11 @@
       const drawImage = () => {
         for (let x = 0; x < pixelArray.length; x++) {
           for (let y = 0; y < pixelArray[x].length; y++) {
-            drawPixel(x, y, pixelArray[x][y] ? colors.on : colors.off);
+            drawPixel(
+              x,
+              y,
+              pixelArray[x][y] % 2 !== 0 ? colors.on : colors.off
+            );
           }
         }
       };
